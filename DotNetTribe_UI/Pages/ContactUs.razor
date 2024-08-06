@@ -1,0 +1,94 @@
+@page "/contact-us"
+@using System.ComponentModel.DataAnnotations
+@using DotNetTribe_UI_Shared.Models.FormModels
+
+<PageTitle>Contact Us</PageTitle>
+
+<div class="bg-primary-bg h-[auto]">
+    <div class="h-[55rem] lg:h-[auto] rounded-b-[3rem] md:rounded-b-[10rem] bg-dark mb-24 p-4 md:p-10 overflow-hidden">
+        <div class="flex flex-row flex-wrap justify-evenly items-center pt-20 md:p-10 gap-10 lg:gap-0 lg:p-20">
+            <div class="md:w-[25rem]">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl text-center lg:text-left leading-snug font-grotesk font-bold text-white">Wanna say “hi” to the tribe?</h1>
+                <h3 class="font-sourceSans text-lg text-center lg:text-left leading-snug text-white">Have a question, suggestion, or just want to say hello? We'd love to hear from you!</h3>
+            </div>
+            <div class="rounded-2xl bg-white overflow-hidden">
+                <EditForm class="flex flex-col gap-4 p-8 md:w-[25rem] " Model="Model" FormName="ContactForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class=" flex gap-6">
+                        <label class=" font-sourceSans font-bold drop-shadow-lg">
+                            First Name:<br>
+                            <InputText @bind-Value="Model!.FirstName"
+                                class="border-2 border-dark rounded-md p-2 md:p-4 w-full focus:outline focus:outline-2 focus:outline-primary focus:border-transparent " />
+                        </label>
+                        <label class=" font-sourceSans font-bold drop-shadow-lg">
+                            Last Name:<br>
+                            <InputText @bind-Value="Model!.LastName"
+                                class="border-2 border-dark rounded-md p-2 md:p-4 w-full focus:outline focus:outline-2 focus:outline-primary focus:border-transparent " />
+                        </label>
+                    </div>
+                    <label class=" font-sourceSans font-bold drop-shadow-lg">
+                        Email Address:<br>
+                        <InputText @bind-Value="Model!.Email"
+                            class="border-2 border-dark rounded-md p-2 md:p-4 md:h-16 w-full focus:outline focus:outline-2 focus:outline-primary focus:border-transparent " />
+                    </label>
+                    <label class=" font-sourceSans font-bold drop-shadow-lg">
+                        Message:<br>
+                        <InputTextArea @bind-Value="Model!.Message"
+                            class="border-2 border-dark rounded-md h-24 p-2 md:h-32 w-full focus:outline focus:outline-2 focus:outline-primary focus:border-transparent " />
+                    </label>
+                    <button class="btn-primary rounded-md p-2 md:p-4 w-28" type="submit">Say Hi</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <div class="h-[auto]">
+        <div class="flex flex-col md:mb-6 md:mt-12 justify-center items-center gap-10 pb-[10rem] md:p-[4rem]">
+            <div class="grid h-[auto] lg:h-[30rem] lg:grid-cols-2 overflow-hidden">
+                <div class="h-[20rem] md:h-[29rem] lg:h-full w-[20rem] md:w-[35rem]  bg-[url('/assets/discord.png')] bg-cover bg-center">
+                </div>
+                <div class="h-[auto] w-[20rem] md:w-[35rem] space-y-5 py-8 px-9 flex flex-col justify-center items-center">
+                    <h1 class="body-heading2 text-center lg:text-left w-full md:text-5xl text-wrap">Join The Tribe On Discord</h1>
+                    <button class="btn-primary flex lg:self-start items-center gap-2">Join On <span class="icon-[ic--twotone-discord] bg-white p-3 hover:animate-spin"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="h-[auto]">
+        <div class="bg-[url('/assets/FollowSection.png')] bg-cover bg-center h-[auto] flex flex-wrap justify-center items-center gap-10 pt-[10rem] pb-[15rem] ">
+            <div class=" flex flex-wrap justify-center items-center gap-10 p-7 w-[99vw] md:w-[90vw] lg:w-[50vw]">
+                <div class=" size-24 md:size-40 lg:size-44 bg-white shadow-2xl rounded-3xl flex justify-center items-center">
+                    <a href=""><span class="icon-[fa6-brands--square-x-twitter] size-16 md:size-24"></span></a>
+                </div>
+                <div class=" size-24 md:size-40 lg:size-44 bg-white shadow-2xl rounded-3xl flex justify-center items-center">
+                    <a href=""><span class="icon-[logos--facebook] size-16 md:size-24"></span></a>
+                </div>
+                <div
+                    class=" size-24 md:size-40 lg:size-44 bg-white shadow-2xl rounded-3xl flex justify-center items-center">
+                    <a href=""><span class="icon-[devicon--linkedin] size-16 md:size-24"></span></a>
+                </div>
+                <div
+                    class=" size-24 md:size-40 lg:size-44 bg-white shadow-2xl rounded-3xl flex justify-center items-center">
+                    <a href=""><span class="icon-[skill-icons--instagram] size-16 md:size-24"></span></a>
+                </div>
+                <div
+                    class=" size-24 md:size-40 lg:size-44 bg-white shadow-2xl rounded-3xl flex justify-center items-center">
+                    <a href=""><span class="icon-[logos--tiktok-icon] size-16 md:size-24"></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    public ContactFormModel? Model { get; set; }
+
+    protected override void OnInitialized() => Model ??= new();
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+    }
+}

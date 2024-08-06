@@ -1,0 +1,27 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.body-heading1 {
+    @apply text-5xl font-bold font-grotesk;
+}
+.body-heading2 {
+    @apply text-3xl font-bold font-grotesk;
+}
+
+.body-text1 {
+    @apply font-sourceSans text-lg;
+}
+.body-text2 {
+    @apply font-sourceSans text-sm;
+}
+
+.input {
+    @apply bg-secondary-bg border border-accent text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-accent p-2.5;
+}
+.btn-primary {
+    @apply bg-primary text-white font-semibold font-grotesk px-4 py-2 rounded-lg shadow-2xl hover:ring-2 hover:ring-secondary-bg hover:bg-[#CD7A2C] active:scale-95 scale-100 ease-in cursor-pointer;
+}
+

@@ -1,0 +1,166 @@
+﻿@page "/blogs"
+@inject HttpClient Http
+@inject IConfiguration _config
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Newtonsoft.Json
+
+@using DotNetTribe_UI.Components
+@using DotNetTribe_UI_Shared.Models.ConfigModels
+@using DotNetTribe_UI_Shared.Models.UtilModels
+
+<PageTitle>Blogs</PageTitle>
+
+<div class ="bg-primary-bg pb-20">    
+    <div class="h-[35rem] p-0  flex flex-col justify-center items-center bg-[url('/assets/blogpagelanding.png')] space-y-20 bg-cover bg-center text-center">
+        <div class="h-[auto] w-[90vw] md:w-[50vw]  space-y-6">
+            <h1 class="body-heading2 md:text-5xl lg:text-6xl text-white drop-shadow-2xl">Blog</h1>
+            <p class="text-white body-text1 text-center md:text-lg lg:text-xl">
+                Welcome to our blog where we share the latest updates, tutorials, and insights from the DotNet Tribe
+                community. Stay tuned for exciting content!
+            </p>
+            <div class="  size-12 flex justify-center items-center rounded-3xl bg-white shadow-2xl focus:ring-2 focus:ring-primary w-full">
+                <span class="icon-[cil--search] p-4" style=""></span>
+                <input type=" body-heading1" class=" p-2 w-auto bg-transparent focus:outline-none cursor-pointer text-black" placeholder="Search"/>
+            </div>
+        </div>
+    </div>
+    <div class="h-[auto]">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6 justify-center p-9  w-full lg:pl-52 lg:pr-52 md:pl-20 md:pr-20 overflow-hidden flex-wrap">
+            @foreach(var blog in blogs) {
+                <a href="/blog/@blog.Id" class="flex">
+                    <div class="h-auto w-[18rem] lg:max-w-[25rem] rounded-2xl space-y-4 bg-secondary-bg border border-black p-4 flex flex-col justify-around text-wrap">
+                        <img src="@blog.PostImage" alt="Blog Image" class="w-full h-40 object-cover border border-black rounded-2xl" />
+                        <div class="flex flex-col flex-wrap space-y-2">
+                            <div class=" flex flex-wrap gap-2">
+                            @foreach(var tag in blog.Tags!) {
+                                <span class="text-sm font-semibold font-sourceSans bg-white p-0 pr-3 pl-3 rounded-3xl border border-primary line-clamp-2">@tag.Name</span>
+                            }
+                            </div>
+                            <h3 class="text-2xl lg:text-3xl leading-tight font-grotesk font-bold">@blog.Title</h3>
+                        <p class="text-md lg:text-lg truncate  font-sourceSans line-clamp-2">@blog.Content</p>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="/assets/john.png" alt="User Picture" class="max-w-20 max-h-14 bg-cover bg-center rounded-full " />
+                            <div class="ml-2 flex flex-col space-y-0">
+                                <span class="text-sm font-grotesk font-medium">@blog.AuthorName</span>
+                                <span class="text-sm font-sourceSans text-gray-700">@(blog.DateUpdated ?? blog.DateCreated)</span>
+                            </div>
+                        </div>
+                    </div>
+                 </a>
+            }
+        </div>
+        <div class="flex justify-center space-x-4 mt-2 max-sm:mb-20 pb-2">
+            <Pagination CurrentPage="currentPage" TotalPages="totalPages" OnPageChanged="HandlePageChanged"
+                NameOfClass="w-[70vw] justify-between" />
+        </div>
+
+    </div>
+</div>
+
+
+@* @code {
+    private List<BlogPost> BlogPosts = new List<BlogPost>();
+    private List<BlogPost> PagedBlogPosts = new List<BlogPost>();
+    private int CurrentPage = 1;
+    private int PageSize = 6; // Number of posts per page
+
+    protected override void OnInitialized()
+    {
+        // Initialize BlogPosts with your data source
+        LoadBlogPosts();
+        UpdatePagedBlogPosts();
+    }
+
+    private void LoadBlogPosts()
+    {
+        // Populate BlogPosts with data from your data source
+        // This is a sample static data for demonstration
+        for (int i = 1; i <= 20; i++)
+        {
+            BlogPosts.Add(new BlogPostDto
+                {
+                    Title = $"Blog Post Title {i}",
+                    Description = "A brief description of the blog post content goes here.",
+                    Category = ".NET",
+                    ImageUrl = "/assets/blogpagelanding.png",
+                    AuthorName = "John Doe",
+                    AuthorImageUrl = "/assets/john.png",
+                    Date = DateTime.Now.AddDays(-i)
+                });
+        }
+    }
+
+    private void UpdatePagedBlogPosts()
+    {
+        PagedBlogPosts = BlogPosts.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToList();
+    }
+
+    private void NextPage()
+    {
+        if (HasNextPage)
+        {
+            CurrentPage++;
+            UpdatePagedBlogPosts();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (HasPreviousPage)
+        {
+            CurrentPage--;
+            UpdatePagedBlogPosts();
+        }
+    }
+
+    private bool HasNextPage => (CurrentPage * PageSize) < BlogPosts.Count;
+    private bool HasPreviousPage => CurrentPage > 1;
+} *@
+
+@code {
+    private int currentPage = 1;
+    private int? totalPages;
+    public IEnumerable<BlogPostDto> blogs = Enumerable.Empty<BlogPostDto>();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogs();
+    }
+
+    private async Task LoadBlogs(int page = 1)
+    {
+        string? baseUrl = _config.GetValue<string>("ProjectBaseSettings:BaseUrl");
+        string? GetAllBlogsEndpoint = _config.GetValue<string>("ProjectBaseSettings:AllBlogsEndpoint");
+
+        string fullUrl = $"{baseUrl}{GetAllBlogsEndpoint}?PageSize=30";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
+        request.Headers.Add("Accept", "application/json");
+
+        var res = await Http.SendAsync(request);
+
+        if (res.IsSuccessStatusCode)
+        {
+            var response = await res.Content.ReadAsStringAsync();
+            var blogData = JsonConvert.DeserializeObject<ApiResponseModel<PaginationResult<BlogPostDto>>>(response);
+            // Assuming each page returns a fixed number of jobs, e.g., 10
+            int pageSize = blogData!.data!.pageSize;
+            // Calculate the start index for this page
+            int startIndex = (page - 1) * pageSize;
+
+            // Filter jobs for this page
+            var paginatedJobs = blogData?.data?.records.Skip(startIndex).Take(pageSize).ToList();
+
+            // Update the jobs variable with the filtered list
+            blogs = paginatedJobs ?? [];
+            totalPages = blogData?.data?.totalPages;
+        }
+    }
+
+    private async Task HandlePageChanged(int page)
+    {
+        currentPage = page;
+        await LoadBlogs(currentPage);
+    }
+}

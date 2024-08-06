@@ -1,0 +1,3 @@
+.nav-item ::deep a.active {
+    border-bottom: 4px solid #5227D3;
+}

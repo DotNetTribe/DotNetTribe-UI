@@ -1,0 +1,144 @@
+@page "/blog/{Id:guid}"
+@inject HttpClient Http
+@inject IConfiguration _config
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Newtonsoft.Json
+@using System.Text.RegularExpressions
+
+@using DotNetTribe_UI.Components
+@using DotNetTribe_UI_Shared.Models.ConfigModels
+@using DotNetTribe_UI_Shared.Models.UtilModels
+
+<PageTitle>BlogPost</PageTitle>
+
+<div class="bg-primary-bg pb-20">
+    <div class="flex justify-center mb-32">
+        <div
+            class="h-[auto] pb-5 w-full md:max-w-[75vw] rounded-2xl space-y-8 bg-secondary-bg border border-black shadow-xl flex flex-col">
+            <img src="@Post!.PostImage" alt="Blog Image" class="w-full h-[20rem] md:h-[30rem] object-cover bg-center" />
+            <div class="p-6 md:p-16 flex flex-col justify-center">
+
+                <div class="flex flex-col flex-wrap space-y-6 justify-center">
+                    <h1 class="text-5xl lg:text-6xl font-grotesk font-extrabold text-center">@Post!.Title</h1>
+                    <div class=" flex flex-wrap gap-2 justify-center">
+                        @foreach (var tag in Post!.Tags!)
+                        {
+                            <span class="text-md md:text-lg font-semibold font-sourceSans bg-white p-0 pr-3 pl-3 rounded-3xl border border-primary">
+                                @tag.Name
+                            </span>
+                        }
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <img src="/assets/john.png" alt="User Picture"
+                            class="max-w-40 max-h-14 bg-cover bg-center rounded-full " />
+                        <div class="ml-4 flex flex-col space-y-0">
+                            <span class="text-sm font-grotesk font-medium">@Post!.AuthorName</span>
+                            <span class="text-sm font-sourceSans text-gray-700">DateUpdated</span>
+                            <span class="text-sm font-sourceSans text-gray-700">DateUpdated</span>
+                        </div>
+                        <div class="pl-4 ml-4 border-l-2 border-black">
+                            <span class="text-sm font-grotesk font-bold">@(Post!.DateCreated!.Value.ToShortDateString()
+                                ?? Post!.DateUpdated!.Value.ToShortDateString())</span>
+                        </div>
+                    </div>
+                    <p class="text-lg md:text-xl lg:text-2xl font-sourceSans text-justify">@Post.Content</p>
+                </div>
+            </div>
+            <div
+                class="bg-white p-4 h-16 w-[60vw] md:w-[35vw] lg:w-[20vw] mb-20  self-center rounded-xl shadow-lg border border-black flex flex-row justify-around">
+                <span class="icon-[mdi--favorite-shooting-outline] bg-primary cursor-pointer"
+                    style="width: 2.2rem; height: 2.2rem;"></span>
+                <span class="icon-[lets-icons--thumb-up] bg-primary active:bg-black cursor-pointer"
+                    style="width: 2.2rem; height: 2.2rem;"></span>
+                <span class="icon-[lets-icons--thumb-down] bg-primary cursor-pointer"
+                    style="width: 2.2rem; height: 2.2rem;"></span>
+                <span class="icon-[ic--outline-comment] bg-primary cursor-pointer"
+                    style="width: 2.2rem; height: 2.2rem;"></span>
+                <span class="icon-[majesticons--share-line] bg-primary cursor-pointer"
+                    style="width: 2.2rem; height: 2.2rem;"></span>
+            </div>
+        </div>
+    </div>
+    @* TODO: hook the next blog post in line with the one above *@
+    <div class="flex flex-col justify-center items-center h-auto pb-24 mb-10 space-y-14">
+        <div class="flex justify-center ">
+            <h1 class=" font-grotesk font-bold text-3xl md:text-4xl lg:text-5xl">More Articles</h1>
+        </div>
+        <div class="grid md:grid-cols-3 gap-y-10 gap-x-5 w-full md:w-[90vw] lg:w-[80vw]">
+            @for (var i = 0; i < 3; i++)
+            {
+                <a href="/blog/" class="flex justify-center">
+                    <div
+                        class="h-auto w-[18rem] lg: rounded-2xl space-y-4 bg-secondary-bg border border-black p-4 flex flex-col justify-around text-wrap">
+                        <img src="/assets/blogpagelanding.png" alt="Blog Image"
+                            class="w-full h-40 object-cover border border-black rounded-2xl" />
+                        <div class="flex flex-col flex-wrap space-y-2">
+                            <div class=" flex flex-wrap gap-2">
+                                @for (var j = 0; j < 3; j++)
+                                {
+                                    <span
+                                        class="text-md md:text-lg font-semibold font-sourceSans bg-white p-0 pr-3 pl-3 rounded-3xl border border-primary">.Net</span>
+                                }
+                            </div>
+                            <h3 class="text-2xl lg:text-3xl leading-tight font-grotesk font-bold">Title</h3>
+                            <p class="text-md lg:text-lg truncate  font-sourceSans line-clamp-2">Content</p>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="/assets/john.png" alt="User Picture"
+                                class="max-w-20 max-h-14 bg-cover bg-center rounded-full " />
+                            <div class="ml-2 flex flex-col space-y-0">
+                                <span class="text-sm font-grotesk font-medium">AuthorName</span>
+                                <span class="text-sm font-sourceSans text-gray-700">DateUpdated</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private BlogPostDto? Post { get; set; } = new BlogPostDto();
+
+    protected override async void OnParametersSet()
+    {
+        @* if (!Guid.TryParse(IdString, out Guid id)) *@
+        await LoadBlogPost();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogPost();
+    }
+
+    private async Task LoadBlogPost()
+    {
+        string? baseUrl = _config.GetValue<string>("ProjectBaseSettings:BaseUrl");
+        string? GetBlogPostEndpoint = _config.GetValue<string>("ProjectBaseSettings:ReadABlogEndpoint");
+
+        string inputString = Id.ToString();
+        var newIdUrl = string.Format(GetBlogPostEndpoint!, inputString);
+
+
+        string fullUrl = $"{baseUrl}{newIdUrl}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
+        request.Headers.Add("Accept", "application/json");
+
+        var response = await Http.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            var apiBlog = JsonConvert.DeserializeObject<ApiResponseModel<BlogPostDto>>(content);
+            Post = apiBlog!.data;
+        }
+    }
+
+
+}

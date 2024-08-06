@@ -1,0 +1,49 @@
+@* @typeparam T *@
+
+<div class="flex gap-10 @NameOfClass">
+    <button @onclick="PreviousPage" disabled="@IsFirstPage"
+        class="text-primary font-grotesk font-bold text-xl md:text-2xl flex justify-center items-center gap-2">
+        <span class="icon-[icon-park-solid--left-c] size-8"></span>Previous</button>
+    @* @for (int i = 1; i <= TotalPages; i++)
+    {
+        <button @onclick="@(async () => await OnPageChanged.InvokeAsync(i))" class="@(i == CurrentPage ? "active" : "")">
+            @i
+        </button>
+    } *@
+    <button @onclick="NextPage" disabled="@IsLastPage"
+        class="text-primary font-grotesk font-bold text-2xl flex justify-center items-center gap-2">Next<span
+            class="icon-[icon-park-solid--right-c] size-8"></span></button>
+</div>
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public int? TotalPages { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    [Parameter]
+    public string? NameOfClass { get; set; } 
+
+    private bool IsFirstPage => CurrentPage == 1;
+    private bool IsLastPage => CurrentPage == TotalPages;
+
+    private async Task PreviousPage()
+    {
+        if (!IsFirstPage)
+        {
+            await OnPageChanged.InvokeAsync(CurrentPage - 1);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (!IsLastPage)
+        {
+            await OnPageChanged.InvokeAsync(CurrentPage + 1);
+        }
+    }
+}
