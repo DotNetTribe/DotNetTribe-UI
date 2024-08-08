@@ -1,0 +1,46 @@
+name: Build and Deploy Blazor UI App to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ./DotNetTribe_UI/DotNetTribe_UI.csproj
+
+    - name: Build the project
+      run: dotnet build --configuration Release --no-restore ./DotNetTribe_UI/DotNetTribe_UI.csproj
+
+    - name: Publish the project
+      run: dotnet publish --configuration Release --output ./publish ./DotNetTribe_UI/DotNetTribe_UI.csproj
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME_UI }}
+        package: ./publish
+
+    # - name: Set environment variables
+    #   run: |
+    #     az webapp config appsettings set --resource-group <your-resource-group> --name ${{ secrets.AZURE_WEBAPP_NAME_UI }} --settings \
+    #       ConnectionStrings__DefaultConnection=${{ secrets.AZURE_SQL_CONNECTION_STRING }} \
+    #       Redis__Host=${{ secrets.AZURE_REDIS_HOST }} \
+    #       Redis__Key=${{ secrets.AZURE_REDIS_KEY }}
