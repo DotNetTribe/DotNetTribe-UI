@@ -29,7 +29,7 @@ jobs:
           node-version: '16.x'
   
       - name: Install NPM dependencies
-        run: npm install ./DotNetTribe_UI
+        run: npm install --prefix ./DotNetTribe_UI 
   
       - name: Restore .NET dependencies
         run: dotnet restore ./DotNetTribe_UI/./DotNetTribe_UI.csproj
