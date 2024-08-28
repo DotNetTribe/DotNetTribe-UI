@@ -21,6 +21,18 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+  
+      - name: Install NPM dependencies
+        run: npm install ./DotNetTribe_UI
+  
+      - name: Restore .NET dependencies
+        run: dotnet restore ./DotNetTribe_UI/./DotNetTribe_UI.csproj
           
       # Install dotnet wasm buildtools workload
       - name: Install .NET WASM Build Tools
