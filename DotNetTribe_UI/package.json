@@ -1,7 +1,7 @@
 {
   "scripts": {
     "buildproject": "npm install",
-    "buildcss": "npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --watch",
+    "buildcss": "npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css",
     "postinstall": "npm run buildcss"
   },
   "devDependencies": {
